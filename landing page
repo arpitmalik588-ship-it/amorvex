@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amorvex — AI Dating Coach for the Modern World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rose:    #e8596a;
+    --rose2:   #ff8a97;
+    --crimson: #c0334a;
+    --gold:    #d4a84b;
+    --gold2:   #f0c97a;
+    --bg:      #060810;
+    --bg2:     #0b0d18;
+    --bg3:     #10121e;
+    --surface: rgba(255,255,255,0.035);
+    --border:  rgba(232,89,106,0.18);
+    --border2: rgba(212,168,75,0.15);
+    --text:    #f2eee8;
+    --muted:   #7a7a90;
+    --glow:    rgba(232,89,106,0.22);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    line-height: 1.7;
+  }
+
+  /* grain */
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 9998; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: .4;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 997;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.1rem 5%;
+    background: rgba(6,8,16,0.75);
+    backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.7rem; font-weight: 900;
+    text-decoration: none; letter-spacing: .01em;
+    background: linear-gradient(135deg, var(--rose2), var(--rose), var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .nav-links { display: flex; gap: 2.4rem; list-style: none; }
+  .nav-links a {
+    color: var(--muted); text-decoration: none;
+    font-size: .86rem; font-weight: 500; letter-spacing: .05em;
+    transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--rose2); }
+
+  .nav-btns { display: flex; gap: .8rem; align-items: center; }
+
+  .btn-ghost {
+    background: none;
+    border: 1px solid rgba(232,89,106,0.3);
+    color: var(--text); padding: .5rem 1.3rem;
+    border-radius: 50px; cursor: pointer;
+    font-family: 'Outfit', sans-serif; font-size: .84rem; font-weight: 500;
+    transition: all .2s; text-decoration: none;
+  }
+  .btn-ghost:hover { border-color: var(--rose); color: var(--rose2); }
+
+  .btn-rose {
+    background: linear-gradient(135deg, var(--rose), var(--crimson));
+    color: #fff; padding: .55rem 1.5rem;
+    border: none; border-radius: 50px; cursor: pointer;
+    font-family: 'Outfit', sans-serif; font-size: .84rem; font-weight: 600;
+    transition: all .25s; text-decoration: none;
+    box-shadow: 0 4px 22px rgba(232,89,106,0.35);
+  }
+  .btn-rose:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(232,89,106,0.5); }
+
+  /* ─── HERO ─── */
+  #hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 10rem 5% 7rem;
+    position: relative; overflow: hidden;
+  }
+
+  /* animated bg orbs */
+  .orb {
+    position: absolute; border-radius: 50%;
+    filter: blur(90px); pointer-events: none; opacity: .55;
+    animation: drift 12s ease-in-out infinite alternate;
+  }
+  .orb1 { width: 520px; height: 520px; background: radial-gradient(circle, rgba(232,89,106,0.28), transparent 70%); top: -100px; left: -80px; animation-delay: 0s; }
+  .orb2 { width: 480px; height: 480px; background: radial-gradient(circle, rgba(212,168,75,0.18), transparent 70%); bottom: 0; right: -100px; animation-delay: -4s; }
+  .orb3 { width: 340px; height: 340px; background: radial-gradient(circle, rgba(124,92,191,0.2), transparent 70%); top: 40%; left: 40%; animation-delay: -8s; }
+
+  @keyframes drift {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(30px, 20px) scale(1.08); }
+  }
+
+  .hero-pill {
+    display: inline-flex; align-items: center; gap: .5rem;
+    background: rgba(232,89,106,0.1); border: 1px solid rgba(232,89,106,0.3);
+    color: var(--rose2); font-size: .76rem; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase;
+    padding: .35rem 1.1rem; border-radius: 99px;
+    margin-bottom: 2rem;
+    animation: fadeUp .7s ease both;
+    position: relative; z-index: 1;
+  }
+  .hero-pill::before { content: '♥'; font-size: .72rem; }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 7.5vw, 6.2rem);
+    font-weight: 900; line-height: 1.06;
+    max-width: 880px;
+    animation: fadeUp .8s .1s ease both;
+    position: relative; z-index: 1;
+  }
+  h1 em {
+    font-style: italic;
+    background: linear-gradient(120deg, var(--rose2), var(--rose), var(--gold2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem; color: var(--muted);
+    max-width: 540px; margin-top: 1.6rem;
+    animation: fadeUp .8s .2s ease both;
+    position: relative; z-index: 1;
+  }
+
+  .hero-btns {
+    display: flex; gap: 1rem; margin-top: 2.6rem;
+    flex-wrap: wrap; justify-content: center;
+    animation: fadeUp .8s .3s ease both;
+    position: relative; z-index: 1;
+  }
+  .btn-xl { padding: .9rem 2.4rem; font-size: 1rem; border-radius: 50px; font-weight: 600; }
+
+  /* hero card */
+  .hero-card {
+    margin-top: 4rem; position: relative; z-index: 1;
+    width: 100%; max-width: 440px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(232,89,106,0.2);
+    border-radius: 24px; padding: 1.8rem;
+    backdrop-filter: blur(16px);
+    animation: fadeUp .9s .5s ease both;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+  .card-top {
+    display: flex; align-items: center; gap: .8rem;
+    margin-bottom: 1.4rem;
+  }
+  .card-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--rose); box-shadow: 0 0 10px var(--rose); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .card-label { font-size: .78rem; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: .1em; }
+
+  .bubbles { display: flex; flex-direction: column; gap: .75rem; }
+  .bbl {
+    padding: .75rem 1.1rem; border-radius: 16px;
+    font-size: .87rem; max-width: 88%;
+  }
+  .bbl.them {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.07);
+    align-self: flex-start; border-bottom-left-radius: 4px; color: #bbb;
+  }
+  .bbl.ai {
+    background: linear-gradient(135deg, rgba(232,89,106,0.15), rgba(212,168,75,0.12));
+    border: 1px solid rgba(232,89,106,0.25);
+    align-self: flex-end; border-bottom-right-radius: 4px;
+  }
+  .bbl.ai .tag {
+    font-size: .66rem; color: var(--rose2); font-weight: 600;
+    text-transform: uppercase; letter-spacing: .1em;
+    display: block; margin-bottom: .25rem;
+  }
+
+  .hero-stats {
+    display: flex; gap: 3.5rem; margin-top: 4rem;
+    flex-wrap: wrap; justify-content: center;
+    animation: fadeUp .8s .55s ease both;
+    position: relative; z-index: 1;
+  }
+  .stat { text-align: center; }
+  .stat-n {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem; font-weight: 900;
+    background: linear-gradient(135deg, var(--rose2), var(--gold2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stat-l { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; margin-top: .15rem; }
+
+  /* ─── SECTIONS COMMON ─── */
+  section { padding: 7rem 5%; }
+  .container { max-width: 1120px; margin: 0 auto; }
+
+  .s-label {
+    font-size: .74rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .14em; color: var(--rose);
+    margin-bottom: .8rem;
+  }
+  .s-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.1rem, 4.5vw, 3.4rem);
+    font-weight: 900; line-height: 1.12;
+    margin-bottom: 1.1rem;
+  }
+  .s-sub { color: var(--muted); max-width: 520px; font-size: .97rem; }
+  .s-head { margin-bottom: 3.5rem; }
+
+  /* ─── FEATURES ─── */
+  #features { background: var(--bg2); }
+
+  .feat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+    gap: 1.4rem;
+  }
+
+  .feat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px; padding: 2.2rem;
+    transition: all .35s; position: relative; overflow: hidden;
+  }
+  .feat-card::after {
+    content: '';
+    position: absolute; inset: 0; border-radius: 20px;
+    background: linear-gradient(135deg, rgba(232,89,106,0.07), transparent 60%);
+    opacity: 0; transition: opacity .35s;
+  }
+  .feat-card:hover { border-color: rgba(232,89,106,0.38); transform: translateY(-5px); box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 40px rgba(232,89,106,0.08); }
+  .feat-card:hover::after { opacity: 1; }
+
+  .feat-ico {
+    width: 52px; height: 52px;
+    background: rgba(232,89,106,0.12);
+    border: 1px solid rgba(232,89,106,0.2);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.45rem; margin-bottom: 1.3rem;
+    position: relative; z-index: 1;
+  }
+  .feat-card h3 { font-size: 1.07rem; font-weight: 600; margin-bottom: .5rem; position: relative; z-index: 1; }
+  .feat-card p { font-size: .87rem; color: var(--muted); line-height: 1.65; position: relative; z-index: 1; }
+
+  /* ─── HOW IT WORKS ─── */
+  #how { background: var(--bg); }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    gap: 2rem;
+  }
+
+  .step {
+    text-align: center; padding: 2.5rem 1.8rem;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    transition: transform .3s, border-color .3s;
+    position: relative; overflow: hidden;
+  }
+  .step:hover { transform: translateY(-5px); border-color: rgba(232,89,106,0.35); }
+  .step::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--rose), var(--gold), transparent);
+    opacity: 0; transition: opacity .3s;
+  }
+  .step:hover::before { opacity: 1; }
+
+  .step-num {
+    width: 60px; height: 60px;
+    background: linear-gradient(135deg, var(--rose), var(--crimson));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.6rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem; font-weight: 900; color: #fff;
+    box-shadow: 0 6px 24px rgba(232,89,106,0.4);
+  }
+  .step h3 { font-size: 1.06rem; font-weight: 600; margin-bottom: .6rem; }
+  .step p { font-size: .87rem; color: var(--muted); }
+
+  /* ─── PRICING ─── */
+  #pricing { background: var(--bg2); }
+
+  .price-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 1.6rem; align-items: start;
+  }
+
+  .price-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 22px; padding: 2.4rem 2.2rem;
+    position: relative; transition: all .3s;
+  }
+  .price-card:hover { transform: translateY(-4px); }
+  .price-card.hot {
+    background: linear-gradient(160deg, rgba(232,89,106,0.1), rgba(212,168,75,0.06));
+    border-color: rgba(232,89,106,0.4);
+    box-shadow: 0 0 80px rgba(232,89,106,0.1);
+  }
+  .hot-badge {
+    position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--rose), var(--crimson));
+    color: #fff; font-size: .72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .1em;
+    padding: .32rem 1.2rem; border-radius: 99px;
+    box-shadow: 0 4px 16px rgba(232,89,106,0.4);
+    white-space: nowrap;
+  }
+
+  .p-name { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; }
+  .p-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.4rem; font-weight: 900;
+    line-height: 1; margin: .7rem 0 .3rem;
+  }
+  .p-price span { font-size: 1rem; color: var(--muted); font-family: 'Outfit', sans-serif; font-weight: 400; }
+  .p-desc { font-size: .84rem; color: var(--muted); margin-bottom: 1.8rem; }
+  .p-features { list-style: none; margin-bottom: 2rem; display: flex; flex-direction: column; gap: .8rem; }
+  .p-features li { display: flex; align-items: flex-start; gap: .7rem; font-size: .88rem; }
+  .p-features li::before { content: '✦'; color: var(--rose); font-size: .72rem; margin-top: .28rem; flex-shrink: 0; }
+  .p-features li.off { color: var(--muted); }
+  .p-features li.off::before { content: '—'; color: #333; }
+  .btn-block { display: block; width: 100%; text-align: center; padding: .8rem; border-radius: 50px; font-size: .92rem; font-weight: 600; }
+
+  /* ─── TESTIMONIALS ─── */
+  #testimonials { background: var(--bg); }
+
+  .reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.4rem;
+  }
+
+  .review-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 20px; padding: 2rem;
+    transition: all .3s; position: relative;
+  }
+  .review-card:hover { border-color: rgba(232,89,106,0.3); transform: translateY(-4px); }
+
+  .quote-mark {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem; line-height: .7;
+    color: var(--rose); opacity: .4;
+    margin-bottom: .5rem;
+  }
+  .stars { color: var(--rose); font-size: .88rem; letter-spacing: .08em; margin-bottom: .9rem; }
+  .r-text { font-size: .9rem; color: #c0bdb8; line-height: 1.7; margin-bottom: 1.4rem; }
+  .reviewer { display: flex; align-items: center; gap: .9rem; }
+  .av {
+    width: 42px; height: 42px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 1rem; flex-shrink: 0;
+  }
+  .r-name { font-size: .89rem; font-weight: 600; }
+  .r-meta { font-size: .76rem; color: var(--muted); }
+
+  /* ─── GLOBAL CTA ─── */
+  #cta {
+    background: var(--bg2); text-align: center;
+    padding: 7rem 5%;
+    position: relative; overflow: hidden;
+  }
+  #cta::before {
+    content: '';
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 700px; height: 400px;
+    background: radial-gradient(ellipse, rgba(232,89,106,0.15), transparent 70%);
+    pointer-events: none;
+  }
+  #cta h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 4rem); font-weight: 900;
+    line-height: 1.1; margin-bottom: 1.2rem;
+    position: relative; z-index: 1;
+  }
+  #cta p { color: var(--muted); max-width: 480px; margin: 0 auto 2.4rem; position: relative; z-index: 1; }
+  #cta .hero-btns { position: relative; z-index: 1; }
+
+  /* ─── FAQ ─── */
+  #faq { background: var(--bg); }
+
+  .faq-wrap { max-width: 740px; margin: 0 auto; }
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-q {
+    width: 100%; background: none; border: none; color: var(--text);
+    font-family: 'Outfit', sans-serif; font-size: .97rem; font-weight: 500;
+    text-align: left; padding: 1.4rem 0;
+    display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer; gap: 1rem; transition: color .2s;
+  }
+  .faq-q:hover { color: var(--rose2); }
+  .faq-icon { color: var(--rose); font-size: 1.2rem; flex-shrink: 0; transition: transform .3s; }
+  .faq-item.open .faq-icon { transform: rotate(45deg); }
+  .faq-a {
+    max-height: 0; overflow: hidden;
+    transition: max-height .38s ease, padding .3s;
+    font-size: .9rem; color: var(--muted); line-height: 1.75;
+  }
+  .faq-item.open .faq-a { max-height: 220px; padding-bottom: 1.5rem; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    padding: 4rem 5% 2.5rem;
+  }
+  .foot-grid {
+    display: grid;
+    grid-template-columns: 2.2fr 1fr 1fr 1fr;
+    gap: 3rem; max-width: 1120px; margin: 0 auto;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .foot-brand p { font-size: .85rem; color: var(--muted); margin-top: .9rem; line-height: 1.75; max-width: 270px; }
+  .foot-col h4 { font-size: .77rem; font-weight: 600; text-transform: uppercase; letter-spacing: .12em; color: var(--rose2); margin-bottom: 1.1rem; }
+  .foot-col ul { list-style: none; display: flex; flex-direction: column; gap: .65rem; }
+  .foot-col ul a { font-size: .84rem; color: var(--muted); text-decoration: none; transition: color .2s; }
+  .foot-col ul a:hover { color: var(--text); }
+  .socials { display: flex; gap: .75rem; margin-top: 1.4rem; }
+  .soc {
+    width: 36px; height: 36px;
+    border: 1px solid var(--border); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: .85rem; text-decoration: none;
+    transition: all .2s;
+  }
+  .soc:hover { border-color: var(--rose); color: var(--rose2); background: rgba(232,89,106,0.08); }
+  .foot-bottom {
+    max-width: 1120px; margin: 0 auto;
+    padding-top: 2rem;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 1rem;
+    font-size: .79rem; color: var(--muted);
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(26px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal { opacity: 0; transform: translateY(32px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* ─── MOBILE ─── */
+  .nav-links, .nav-btns { }
+  @media (max-width: 780px) {
+    nav { padding: 1rem 5%; }
+    .nav-links { display: none; }
+    h1 { font-size: 2.8rem; }
+    .foot-grid { grid-template-columns: 1fr 1fr; }
+    .foot-brand { grid-column: 1/-1; }
+  }
+  @media (max-width: 480px) {
+    section { padding: 5rem 5%; }
+    .foot-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="#" class="logo">Amorvex</a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <div class="nav-btns">
+    <a href="#" class="btn-ghost">Log In</a>
+    <a href="#" class="btn-rose">Start Free ♥</a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <div class="hero-pill">AI Dating Coach · Global · Free to Start</div>
+
+  <h1>Turn Every Message<br>into a <em>Love Story</em></h1>
+
+  <p class="hero-sub">Amorvex is your intelligent dating companion — analysing conversations, crafting perfect replies, and coaching you toward genuine connections, in any language, anywhere in the world.</p>
+
+  <div class="hero-btns">
+    <a href="#" class="btn-rose btn-xl">Try Amorvex Free ♥</a>
+    <a href="#pricing" class="btn-ghost btn-xl">View Plans</a>
+  </div>
+
+  <div class="hero-card">
+    <div class="card-top">
+      <div class="card-dot"></div>
+      <span class="card-label">Amorvex AI · Live Analysis</span>
+    </div>
+    <div class="bubbles">
+      <div class="bbl them">She hasn't replied in 2 days… what do I do?</div>
+      <div class="bbl ai"><span class="tag">✦ Amorvex</span>Send a light re-engage — try: "Hey, been thinking about that coffee place you mentioned. Still on your list?"</div>
+      <div class="bbl them">She replied instantly 🔥 you're a genius</div>
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-n">62K+</div><div class="stat-l">People Coached</div></div>
+    <div class="stat"><div class="stat-n">4.9★</div><div class="stat-l">App Rating</div></div>
+    <div class="stat"><div class="stat-n">3.4M+</div><div class="stat-l">Replies Generated</div></div>
+    <div class="stat"><div class="stat-n">40+</div><div class="stat-l">Languages</div></div>
+  </div>
+</section>
+
+<!-- ── FEATURES ── -->
+<section id="features">
+  <div class="container">
+    <div class="s-head reveal">
+      <p class="s-label">♥ Features</p>
+      <h2 class="s-title">Everything You Need to<br>Connect Deeper</h2>
+      <p class="s-sub">A full suite of AI tools built for modern dating — from the first message to the first date and beyond.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card reveal">
+        <div class="feat-ico">💬</div>
+        <h3>AI Reply Generator</h3>
+        <p>Context-aware, natural replies in seconds. Choose from witty, warm, mysterious, or bold — and always sound authentically you.</p>
+      </div>
+      <div class="feat-card reveal" style="transition-delay:.07s">
+        <div class="feat-ico">🔍</div>
+        <h3>Conversation Analysis</h3>
+        <p>Paste a chat and get a detailed AI breakdown — interest level, red flags, momentum, and the perfect next move.</p>
+      </div>
+      <div class="feat-card reveal" style="transition-delay:.14s">
+        <div class="feat-ico">✨</div>
+        <h3>Profile & Bio Optimizer</h3>
+        <p>Magnetic rewrites of your dating bio that reflect your true personality and attract higher-quality matches.</p>
+      </div>
+      <div class="feat-card reveal" style="transition-delay:.21s">
+        <div class="feat-ico">🧠</div>
+        <h3>Confidence Coaching</h3>
+        <p>Daily AI-powered insights, mindset prompts, and real talk to help you show up as your most attractive self.</p>
+      </div>
+      <div class="feat-card reveal" style="transition-delay:.28s">
+        <div class="feat-ico">📸</div>
+        <h3>Screenshot Suggestions</h3>
+        <p>Upload any chat screenshot and instantly receive 3 smart reply options with clear reasoning behind each choice.</p>
+      </div>
+      <div class="feat-card reveal" style="transition-delay:.35s">
+        <div class="feat-ico">🌍</div>
+        <h3>Multilingual Support</h3>
+        <p>Get coaching and reply suggestions in 40+ languages — English, Spanish, French, Hindi, Arabic, Japanese and more.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section id="how">
+  <div class="container">
+    <div class="s-head reveal" style="text-align:center">
+      <p class="s-label">♥ How It Works</p>
+      <h2 class="s-title">Results in Under 30 Seconds</h2>
+      <p class="s-sub" style="margin:0 auto">No complicated setup. Three steps and you're already ahead.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">1</div>
+        <h3>Share Your Situation</h3>
+        <p>Upload a chat screenshot, paste a message, or simply describe what's happening. Amorvex understands context instantly.</p>
+      </div>
+      <div class="step reveal" style="transition-delay:.1s">
+        <div class="step-num">2</div>
+        <h3>AI Reads the Room</h3>
+        <p>Our model analyses tone, emotional cues, interest signals, and timing to fully understand where the conversation stands.</p>
+      </div>
+      <div class="step reveal" style="transition-delay:.2s">
+        <div class="step-num">3</div>
+        <h3>Get Smart Replies</h3>
+        <p>Receive 3 tailored, respectful reply options with explanations. Pick one, tweak it, or use it as inspiration — it's your call.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ── -->
+<section id="pricing">
+  <div class="container">
+    <div class="s-head reveal" style="text-align:center">
+      <p class="s-label">♥ Pricing</p>
+      <h2 class="s-title">Invest in Real Connection</h2>
+      <p class="s-sub" style="margin:0 auto">Start free. Upgrade when you want to go deeper.</p>
+    </div>
+    <div class="price-grid reveal">
+      <div class="price-card">
+        <div class="p-name">Starter</div>
+        <div class="p-price">$0 <span>/ forever</span></div>
+        <div class="p-desc">For exploring what Amorvex can do</div>
+        <ul class="p-features">
+          <li>5 AI replies per day</li>
+          <li>Basic chat analysis</li>
+          <li>1 bio rewrite/month</li>
+          <li class="off">Screenshot analysis</li>
+          <li class="off">Multilingual support</li>
+          <li class="off">Confidence coaching</li>
+        </ul>
+        <a href="#" class="btn-ghost btn-block">Get Started Free</a>
+      </div>
+      <div class="price-card hot">
+        <div class="hot-badge">✦ Most Popular</div>
+        <div class="p-name">Pro Monthly</div>
+        <div class="p-price">$19 <span>/ month</span></div>
+        <div class="p-desc">For those serious about leveling up</div>
+        <ul class="p-features">
+          <li>Unlimited AI replies</li>
+          <li>Advanced chat analysis</li>
+          <li>Unlimited bio rewrites</li>
+          <li>Screenshot reply suggestions</li>
+          <li>40+ language support</li>
+          <li class="off">White-glove onboarding</li>
+        </ul>
+        <a href="#" class="btn-rose btn-block">Start Pro Trial →</a>
+      </div>
+      <div class="price-card">
+        <div class="p-name">Premium Unlimited</div>
+        <div class="p-price">$49 <span>/ month</span></div>
+        <div class="p-desc">The complete Amorvex experience</div>
+        <ul class="p-features">
+          <li>Everything in Pro</li>
+          <li>Daily confidence coaching</li>
+          <li>Date prep playbooks</li>
+          <li>AI roleplay practice</li>
+          <li>Early feature access</li>
+          <li>White-glove onboarding</li>
+        </ul>
+        <a href="#" class="btn-ghost btn-block">Go Premium</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIALS ── -->
+<section id="testimonials">
+  <div class="container">
+    <div class="s-head reveal">
+      <p class="s-label">♥ Testimonials</p>
+      <h2 class="s-title">Real People. Real Love.</h2>
+    </div>
+    <div class="reviews-grid">
+      <div class="review-card reveal">
+        <div class="quote-mark">"</div>
+        <div class="stars">★★★★★</div>
+        <p class="r-text">I was so nervous about dating after my divorce. Amorvex gave me the words when I had none. Three months later I'm in the best relationship of my life.</p>
+        <div class="reviewer">
+          <div class="av" style="background:linear-gradient(135deg,#e8596a,#c0334a)">S</div>
+          <div><div class="r-name">Sophie M.</div><div class="r-meta">Premium User · Paris, France</div></div>
+        </div>
+      </div>
+      <div class="review-card reveal" style="transition-delay:.08s">
+        <div class="quote-mark">"</div>
+        <div class="stars">★★★★★</div>
+        <p class="r-text">As an Indian guy on Western apps I was struggling. The multilingual coaching and cultural tone tips from Amorvex changed everything. 100% worth it.</p>
+        <div class="reviewer">
+          <div class="av" style="background:linear-gradient(135deg,#d4a84b,#a8782a)">A</div>
+          <div><div class="r-name">Arjun K.</div><div class="r-meta">Pro User · Mumbai, India</div></div>
+        </div>
+      </div>
+      <div class="review-card reveal" style="transition-delay:.16s">
+        <div class="quote-mark">"</div>
+        <div class="stars">★★★★★</div>
+        <p class="r-text">The screenshot analysis is honestly scary accurate. Told me she was pulling away before I noticed — the suggested reply completely turned it around.</p>
+        <div class="reviewer">
+          <div class="av" style="background:linear-gradient(135deg,#7c5cbf,#4f9ef8)">L</div>
+          <div><div class="r-name">Luca B.</div><div class="r-meta">Pro User · Milan, Italy</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section id="cta">
+  <div class="container">
+    <h2 class="reveal">Ready to Find Your <em style="font-style:italic;background:linear-gradient(120deg,var(--rose2),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Person?</em></h2>
+    <p class="reveal">Join 62,000+ people already using Amorvex to have better conversations and build real connections.</p>
+    <div class="hero-btns reveal">
+      <a href="#" class="btn-rose btn-xl">Start Free Today ♥</a>
+      <a href="#features" class="btn-ghost btn-xl">Learn More</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ── -->
+<section id="faq">
+  <div class="container">
+    <div class="s-head reveal" style="text-align:center">
+      <p class="s-label">♥ FAQ</p>
+      <h2 class="s-title">Questions Answered</h2>
+    </div>
+    <div class="faq-wrap">
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">Is my data private and secure? <span class="faq-icon">+</span></button>
+        <div class="faq-a">Yes — all uploaded screenshots and conversations are encrypted end-to-end. We never sell your data or use it for advertising. You can delete everything from your account at any time.</div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">Does Amorvex work in my language? <span class="faq-icon">+</span></button>
+        <div class="faq-a">Pro and Premium users get full support in 40+ languages including English, Spanish, French, Portuguese, Hindi, Arabic, Mandarin, Japanese, Korean, German, Italian and more.</div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">Will my matches know I'm using AI? <span class="faq-icon">+</span></button>
+        <div class="faq-a">Amorvex is a coaching tool — it gives suggestions, but you choose, edit, and send every message. Think of it as a wise friend helping you think clearly — not a bot speaking for you.</div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">How accurate is the AI analysis? <span class="faq-icon">+</span></button>
+        <div class="faq-a">Amorvex is trained on millions of real dating conversation patterns and updated continuously. Most users report noticeable improvements in reply rates and match quality within their first week.</div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">Is Amorvex ethical and safe to use? <span class="faq-icon">+</span></button>
+        <div class="faq-a">Absolutely. Amorvex is built around respectful, authentic communication. We will never suggest manipulative or deceptive messages. Our entire philosophy is about genuine connection.</div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">Can I cancel my subscription anytime? <span class="faq-icon">+</span></button>
+        <div class="faq-a">Yes — cancel anytime from your dashboard with zero hidden fees. You keep full access until the end of your current billing period.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <a href="#" class="logo">Amorvex</a>
+      <p>AI-powered dating coaching for real people seeking real connections — in any language, anywhere in the world.</p>
+      <div class="socials">
+        <a href="#" class="soc">𝕏</a>
+        <a href="#" class="soc">in</a>
+        <a href="#" class="soc">ig</a>
+        <a href="#" class="soc">tt</a>
+      </div>
+    </div>
+    <div class="foot-col">
+      <h4>Product</h4>
+      <ul>
+        <li><a href="#">Features</a></li>
+        <li><a href="#">Pricing</a></li>
+        <li><a href="#">Changelog</a></li>
+        <li><a href="#">Roadmap</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Cookie Policy</a></li>
+        <li><a href="#">Security</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2025 Amorvex. All rights reserved.</span>
+    <span>Made with ♥ for better connections worldwide</span>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // FAQ
+  function toggleFaq(btn) {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+</script>
+</body>
+</html>
